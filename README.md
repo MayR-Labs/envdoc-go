@@ -104,109 +104,121 @@ envdoc sync .env .env.staging .env.production
 
 ### Commands
 
-#### Documentation & Schema Generation
+#### 📚 Documentation & Schema Generation
 
-**Create Example File**
+##### Create Example File
 ```bash
 envdoc create-example [file] [output]
 ```
 Generates an example file with empty values based on keys in the source file.
 
-**Create JSON Schema**
+##### Create JSON Schema
 ```bash
 envdoc create-schema [file] [output]
 ```
 Generates a JSON schema defining all environment variables.
 
-#### File Management
+-----------------------------------------------------------------------
 
-**Arrange**
+#### 📑 File Management
+
+##### Arrange
 ```bash
 envdoc arrange [file]
 ```
 Sorts and groups environment variables alphabetically.
 
-**Sync**
+##### Sync
 ```bash
 envdoc sync [file1] [file2] [fileN...]
 ```
 Synchronizes keys across multiple files, adding missing keys with empty values.
 
-#### Auditing & Comparison
+-----------------------------------------------------------------------
 
-**Audit**
+#### 🔍 Auditing & Comparison
+
+##### Audit
 ```bash
 envdoc audit [file]
 ```
 Generates a report of duplicate keys in a file.
 
-**Compare**
+##### Compare
 ```bash
 envdoc compare [file1] [file2] [fileN...]
 ```
 Generates a comparison report showing missing keys across files.
 
-**Doctor**
+##### Doctor
 ```bash
 envdoc doctor
 ```
 Audits all .env files in the current directory.
 
-**Engineer**
+#### Engineer
 ```bash
 envdoc engineer
 ```
 Synchronizes and arranges all .env files in the current directory.
 
-#### Validation
+-----------------------------------------------------------------------
 
-**Validate**
+#### 📝 Validation
+
+##### Validate
 ```bash
 envdoc validate [file] [schema-file]
 ```
 Validates a .env file against a JSON schema.
 
-#### Conversion
+-----------------------------------------------------------------------
 
-**Convert To**
+#### 🔄 Conversion
+
+##### Convert To
 ```bash
 envdoc to [json|yaml] [file]
 ```
 Converts .env file to JSON or YAML format.
 
-**Convert From**
+##### Convert From
 ```bash
 envdoc from [file]
 ```
 Converts JSON or YAML file to .env format.
 
-#### Security
+-----------------------------------------------------------------------
 
-**Encrypt**
+#### 🔐 Security
+
+##### Encrypt
 ```bash
 envdoc encrypt [file]
 ```
 Encrypts a file using AES-256-CBC with PBKDF2 key derivation.
 
-**Decrypt**
+##### Decrypt
 ```bash
 envdoc decrypt [file]
 ```
 Decrypts an encrypted file.
 
-**Hash**
+##### Hash
 ```bash
 envdoc hash [file]
 ```
 Generates and displays SHA256 hash of a file.
 
-**Base64**
+##### Base64
 ```bash
 envdoc base64 [encode|decode] [file]
 ```
 Encodes or decodes a file using base64.
 
-#### Information
+-----------------------------------------------------------------------
+
+#### ℹ️ Information
 
 ```bash
 envdoc version        # Show version
@@ -215,6 +227,8 @@ envdoc license        # Show license
 envdoc changelog      # Show changelog
 envdoc authors        # Show authors
 ```
+
+-----------------------------------------------------------------------
 
 ## 📖 Examples
 
@@ -373,7 +387,7 @@ Example:
 ```
 Title: envdoc sync fails with special characters in keys
 
-Description: When syncing files with keys containing special characters like '@' or '$', 
+Description: When syncing files with keys containing special characters like '@' or '$',
 the command crashes with a parse error.
 
 Steps to reproduce:
@@ -434,4 +448,4 @@ If you find envdoc helpful, please give it a star on GitHub!
 
 ---
 
-**Made with ❤️ by MayR Labs** | [GitHub](https://github.com/MayR-Labs)
+**Made with ❤️ by MayR Labs** | [GitHub @MayR-Labs](https://github.com/MayR-Labs) | [Website (mayrlabs.com)](https://mayrlabs.com)
