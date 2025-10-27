@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -129,6 +130,7 @@ func PromptForMultiSelect(message string, options []string) ([]string, error) {
 // FindEnvFiles finds all .env files in the current directory
 // Excludes backup, json, yaml, hashed, b64, encrypted, and enc files
 func FindEnvFiles() ([]string, error) {
+	const envPrefix = ".env."
 	var files []string
 	entries, err := os.ReadDir(".")
 	if err != nil {
@@ -141,7 +143,7 @@ func FindEnvFiles() ([]string, error) {
 		}
 		name := entry.Name()
 		// Include .env and .env.* files
-		if name == ".env" || (len(name) > 5 && name[:5] == ".env.") {
+		if name == ".env" || (len(name) > len(envPrefix) && name[:len(envPrefix)] == envPrefix) {
 			// Exclude specific suffixes
 			if !hasExcludedSuffix(name) {
 				files = append(files, name)
@@ -156,7 +158,7 @@ func FindEnvFiles() ([]string, error) {
 func hasExcludedSuffix(name string) bool {
 	excludedSuffixes := []string{".bak", ".json", ".yaml", ".yml", ".hashed", ".b64", ".encrypted", ".enc"}
 	for _, suffix := range excludedSuffixes {
-		if len(name) >= len(suffix) && name[len(name)-len(suffix):] == suffix {
+		if strings.HasSuffix(name, suffix) {
 			return true
 		}
 	}
