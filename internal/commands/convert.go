@@ -150,17 +150,18 @@ func NewFromCmd() *cobra.Command {
 			ext := strings.ToLower(filepath.Ext(inputFile))
 			envMap := make(map[string]string)
 
-			if ext == ".json" {
+			switch ext {
+			case ".json":
 				if err := json.Unmarshal([]byte(data), &envMap); err != nil {
 					fmt.Printf("Error parsing JSON: %v\n", err)
 					os.Exit(1)
 				}
-			} else if ext == ".yaml" || ext == ".yml" {
+			case ".yaml", ".yml":
 				if err := yaml.Unmarshal([]byte(data), &envMap); err != nil {
 					fmt.Printf("Error parsing YAML: %v\n", err)
 					os.Exit(1)
 				}
-			} else {
+			default:
 				fmt.Printf("Error: Unsupported file format '%s'. Must be .json, .yaml, or .yml\n", ext)
 				os.Exit(1)
 			}

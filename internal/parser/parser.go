@@ -21,7 +21,12 @@ func ParseEnvFile(filename string) ([]EnvVar, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			return
+		}
+	}(file)
 
 	var envVars []EnvVar
 	scanner := bufio.NewScanner(file)
@@ -69,16 +74,34 @@ func WriteEnvFile(filename string, envVars []EnvVar) error {
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			return
+		}
+	}(file)
 
 	writer := bufio.NewWriter(file)
-	defer writer.Flush()
+	defer func(writer *bufio.Writer) {
+		err := writer.Flush()
+		if err != nil {
+			return
+		}
+	}(writer)
 
 	for _, envVar := range envVars {
 		if envVar.Comment != "" {
-			fmt.Fprintln(writer, envVar.Comment)
+			_, err := fmt.Fprintln(writer, envVar.Comment)
+
+			if err != nil {
+				return err
+			}
 		}
-		fmt.Fprintf(writer, "%s=%s\n", envVar.Key, envVar.Value)
+
+		_, err := fmt.Fprintf(writer, "%s=%s\n", envVar.Key, envVar.Value)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

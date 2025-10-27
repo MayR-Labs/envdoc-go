@@ -30,7 +30,6 @@ func ConfirmWithPin(message string) (bool, error) {
 
 // generatePin generates a random 6-digit PIN
 func generatePin() string {
-	rand.Seed(time.Now().UnixNano())
 	return fmt.Sprintf("%06d", rand.Intn(1000000))
 }
 
