@@ -1,0 +1,124 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Get version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build binaries
+        run: |
+          # Create dist directory
+          mkdir -p dist
+          
+          # Build for Linux AMD64
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w -X github.com/MayR-Labs/envdoc-go/internal/commands.Version=${{ steps.get_version.outputs.VERSION }}" -o dist/envdoc-linux-amd64 .
+          
+          # Build for Linux ARM64
+          GOOS=linux GOARCH=arm64 go build -ldflags="-s -w -X github.com/MayR-Labs/envdoc-go/internal/commands.Version=${{ steps.get_version.outputs.VERSION }}" -o dist/envdoc-linux-arm64 .
+          
+          # Build for macOS AMD64
+          GOOS=darwin GOARCH=amd64 go build -ldflags="-s -w -X github.com/MayR-Labs/envdoc-go/internal/commands.Version=${{ steps.get_version.outputs.VERSION }}" -o dist/envdoc-darwin-amd64 .
+          
+          # Build for macOS ARM64 (Apple Silicon)
+          GOOS=darwin GOARCH=arm64 go build -ldflags="-s -w -X github.com/MayR-Labs/envdoc-go/internal/commands.Version=${{ steps.get_version.outputs.VERSION }}" -o dist/envdoc-darwin-arm64 .
+          
+          # Build for Windows AMD64
+          GOOS=windows GOARCH=amd64 go build -ldflags="-s -w -X github.com/MayR-Labs/envdoc-go/internal/commands.Version=${{ steps.get_version.outputs.VERSION }}" -o dist/envdoc-windows-amd64.exe .
+          
+          # Make binaries executable
+          chmod +x dist/envdoc-*
+          
+          # List built files
+          ls -lh dist/
+
+      - name: Generate checksums
+        run: |
+          cd dist
+          sha256sum * > checksums.txt
+          cat checksums.txt
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          cat > release_notes.md << 'EOF'
+          ## envdoc ${{ steps.get_version.outputs.VERSION }}
+          
+          ### Installation
+          
+          Download the appropriate binary for your platform below:
+          
+          #### Linux
+          ```bash
+          # AMD64
+          wget https://github.com/MayR-Labs/envdoc-go/releases/download/${{ steps.get_version.outputs.VERSION }}/envdoc-linux-amd64
+          chmod +x envdoc-linux-amd64
+          sudo mv envdoc-linux-amd64 /usr/local/bin/envdoc
+          
+          # ARM64
+          wget https://github.com/MayR-Labs/envdoc-go/releases/download/${{ steps.get_version.outputs.VERSION }}/envdoc-linux-arm64
+          chmod +x envdoc-linux-arm64
+          sudo mv envdoc-linux-arm64 /usr/local/bin/envdoc
+          ```
+          
+          #### macOS
+          ```bash
+          # Intel
+          wget https://github.com/MayR-Labs/envdoc-go/releases/download/${{ steps.get_version.outputs.VERSION }}/envdoc-darwin-amd64
+          chmod +x envdoc-darwin-amd64
+          sudo mv envdoc-darwin-amd64 /usr/local/bin/envdoc
+          
+          # Apple Silicon (M1/M2/M3)
+          wget https://github.com/MayR-Labs/envdoc-go/releases/download/${{ steps.get_version.outputs.VERSION }}/envdoc-darwin-arm64
+          chmod +x envdoc-darwin-arm64
+          sudo mv envdoc-darwin-arm64 /usr/local/bin/envdoc
+          ```
+          
+          #### Windows
+          Download `envdoc-windows-amd64.exe` and add it to your PATH.
+          
+          Or use the [installation script](https://github.com/MayR-Labs/envdoc-go#installation).
+          
+          ### Verify Installation
+          ```bash
+          envdoc --version
+          ```
+          
+          ### What's Changed
+          See the [CHANGELOG](https://github.com/MayR-Labs/envdoc-go/blob/main/CHANGELOG.md) for details.
+          
+          ### Checksums
+          Verify the integrity of your download using the checksums in `checksums.txt`.
+          EOF
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
