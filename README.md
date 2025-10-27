@@ -112,11 +112,50 @@ envdoc create-example [file] [output]
 ```
 Generates an example file with empty values based on keys in the source file.
 
+**Example Output:**
+```env
+DATABASE_HOST=
+DATABASE_PORT=
+DATABASE_NAME=
+DATABASE_USER=
+DATABASE_PASSWORD=
+
+API_KEY=
+API_SECRET=
+API_BASE_URL=
+```
+
 ##### Create JSON Schema
 ```bash
 envdoc create-schema [file] [output]
 ```
 Generates a JSON schema defining all environment variables.
+
+**Example Schema:**
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "DATABASE_HOST": {
+      "type": "string",
+      "description": "Database Configuration"
+    },
+    "DATABASE_PORT": {
+      "type": "string"
+    },
+    "API_KEY": {
+      "type": "string",
+      "description": "API Configuration"
+    }
+  },
+  "required": [
+    "DATABASE_HOST",
+    "DATABASE_PORT",
+    "API_KEY"
+  ]
+}
+```
 
 -----------------------------------------------------------------------
 
@@ -126,7 +165,27 @@ Generates a JSON schema defining all environment variables.
 ```bash
 envdoc arrange [file]
 ```
-Sorts and groups environment variables alphabetically.
+Sorts and groups environment variables alphabetically with blank lines separating different prefixes.
+
+**Example Output:**
+```env
+APP_DEBUG=true
+APP_ENV=development
+APP_NAME=MyApp
+
+AWS_ACCESS_KEY_ID=key123
+AWS_SECRET_ACCESS_KEY=secret456
+
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_NAME=myapp
+```
+
+##### Clear Values
+```bash
+envdoc clear-values [file]
+```
+Clears all values from an environment file, leaving only the keys. This is a dangerous operation requiring PIN confirmation.
 
 ##### Sync
 ```bash
@@ -142,13 +201,63 @@ Synchronizes keys across multiple files, adding missing keys with empty values.
 ```bash
 envdoc audit [file]
 ```
-Generates a report of duplicate keys in a file.
+Generates a report of duplicate keys and missing values in a file.
+
+**Example Report:**
+```markdown
+# Environment Variables Audit Report
+
+## Overview
+
+**File:** `.env`
+**Total Keys:** 15
+**Duplicate Keys:** 1
+**Keys with Missing Values:** 3
+
+## Duplicate Keys
+
+| Key |
+|-----|
+| `API_KEY` |
+
+## Keys with Missing Values
+
+| Key |
+|-----|
+| `DATABASE_PASSWORD` |
+| `API_SECRET` |
+| `SMTP_PASSWORD` |
+```
 
 ##### Compare
 ```bash
 envdoc compare [file1] [file2] [fileN...]
 ```
 Generates a comparison report showing missing keys across files.
+
+**Example Report:**
+```markdown
+# Environment Variables Comparison Report
+
+## Overview
+
+**Files Compared:** 3
+
+## Files Analyzed
+
+- `.env.development` (10 keys)
+- `.env.staging` (12 keys)
+- `.env.production` (12 keys)
+
+## Missing Keys
+
+### Missing in `.env.development`
+
+| Key |
+|-----|
+| `SSL_CERT` |
+| `SSL_KEY` |
+```
 
 ##### Doctor
 ```bash

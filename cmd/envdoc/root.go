@@ -45,6 +45,7 @@ func init() {
 
 	// Utility commands
 	rootCmd.AddCommand(commands.NewArrangeCmd())
+	rootCmd.AddCommand(commands.NewClearValuesCmd())
 
 	// Info commands
 	rootCmd.AddCommand(commands.NewVersionCmd())
