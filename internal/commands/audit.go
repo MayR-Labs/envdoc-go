@@ -49,8 +49,11 @@ and duplicated keys in the specified file.`,
 			// Find duplicates
 			duplicates := parser.FindDuplicates(envVars)
 
+			// Find keys with missing values
+			missingValues := findKeysWithMissingValues(envVars)
+
 			// Generate report
-			report := generateAuditReport(inputFile, duplicates, len(envVars))
+			report := generateAuditReport(inputFile, duplicates, missingValues, len(envVars))
 
 			// Show options
 			handleReportOutput(report, "envdoc-audit")
@@ -112,18 +115,31 @@ across multiple specified files.`,
 	}
 }
 
-func generateAuditReport(filename string, duplicates []string, totalKeys int) string {
+// findKeysWithMissingValues finds keys that have empty or missing values
+func findKeysWithMissingValues(envVars []parser.EnvVar) []string {
+	var missing []string
+	for _, envVar := range envVars {
+		if envVar.Value == "" {
+			missing = append(missing, envVar.Key)
+		}
+	}
+	return missing
+}
+
+func generateAuditReport(filename string, duplicates []string, missingValues []string, totalKeys int) string {
 	var sb strings.Builder
 
 	sb.WriteString("# Environment Variables Audit Report\n\n")
 	sb.WriteString("## Table of Contents\n")
 	sb.WriteString("- [Overview](#overview)\n")
-	sb.WriteString("- [Duplicate Keys](#duplicate-keys)\n\n")
+	sb.WriteString("- [Duplicate Keys](#duplicate-keys)\n")
+	sb.WriteString("- [Keys with Missing Values](#keys-with-missing-values)\n\n")
 
 	sb.WriteString("## Overview\n\n")
 	sb.WriteString(fmt.Sprintf("**File:** `%s`\n\n", filename))
 	sb.WriteString(fmt.Sprintf("**Total Keys:** %d\n\n", totalKeys))
 	sb.WriteString(fmt.Sprintf("**Duplicate Keys:** %d\n\n", len(duplicates)))
+	sb.WriteString(fmt.Sprintf("**Keys with Missing Values:** %d\n\n", len(missingValues)))
 
 	sb.WriteString("## Duplicate Keys\n\n")
 	if len(duplicates) == 0 {
@@ -132,6 +148,18 @@ func generateAuditReport(filename string, duplicates []string, totalKeys int) st
 		sb.WriteString("| Key |\n")
 		sb.WriteString("|-----|\n")
 		for _, key := range duplicates {
+			sb.WriteString(fmt.Sprintf("| `%s` |\n", key))
+		}
+		sb.WriteString("\n")
+	}
+
+	sb.WriteString("## Keys with Missing Values\n\n")
+	if len(missingValues) == 0 {
+		sb.WriteString("✓ No keys with missing values found.\n\n")
+	} else {
+		sb.WriteString("| Key |\n")
+		sb.WriteString("|-----|\n")
+		for _, key := range missingValues {
 			sb.WriteString(fmt.Sprintf("| `%s` |\n", key))
 		}
 		sb.WriteString("\n")

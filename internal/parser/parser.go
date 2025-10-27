@@ -10,9 +10,10 @@ import (
 
 // EnvVar represents an environment variable
 type EnvVar struct {
-	Key     string
-	Value   string
-	Comment string
+	Key        string
+	Value      string
+	Comment    string
+	BlankAfter bool // Add blank line after this variable
 }
 
 // ParseEnvFile parses a .env file and returns a list of environment variables
@@ -102,6 +103,14 @@ func WriteEnvFile(filename string, envVars []EnvVar) error {
 		if err != nil {
 			return err
 		}
+
+		// Add blank line after this variable if requested
+		if envVar.BlankAfter {
+			_, err := fmt.Fprintln(writer)
+			if err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil
@@ -127,7 +136,37 @@ func ArrangeByPrefix(envVars []EnvVar) []EnvVar {
 		return envVars[i].Key < envVars[j].Key
 	})
 
-	return envVars
+	// Add blank lines between different prefixes
+	result := make([]EnvVar, 0, len(envVars))
+	var lastPrefix string
+
+	for i, envVar := range envVars {
+		// Extract prefix (everything before the first underscore)
+		prefix := getPrefix(envVar.Key)
+
+		// Check if prefix has changed
+		if i > 0 && prefix != lastPrefix {
+			// Mark the previous variable to have a blank line after it
+			if len(result) > 0 {
+				result[len(result)-1].BlankAfter = true
+			}
+		}
+
+		result = append(result, envVar)
+		lastPrefix = prefix
+	}
+
+	return result
+}
+
+// getPrefix extracts the prefix from a key (everything before the first underscore)
+func getPrefix(key string) string {
+	for i, c := range key {
+		if c == '_' {
+			return key[:i]
+		}
+	}
+	return key
 }
 
 // FindDuplicates finds duplicate keys in environment variables

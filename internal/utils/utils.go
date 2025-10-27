@@ -155,7 +155,7 @@ func FindEnvFiles() ([]string, error) {
 
 // hasExcludedSuffix checks if a filename has an excluded suffix
 func hasExcludedSuffix(name string) bool {
-	excludedSuffixes := []string{".bak", ".json", ".yaml", ".yml", ".hashed", ".b64", ".encrypted", ".enc"}
+	excludedSuffixes := []string{".bak", ".tmp", ".b64", ".hash", ".enc", ".encrypted", ".decrypted", ".dec", ".json", ".yaml", ".yml", ".hashed"}
 	for _, suffix := range excludedSuffixes {
 		if strings.HasSuffix(name, suffix) {
 			return true

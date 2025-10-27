@@ -64,16 +64,15 @@ func NewToCmd() *cobra.Command {
 				os.Exit(1)
 			}
 
-			// Convert to map
-			envMap := make(map[string]string)
-			for _, envVar := range envVars {
-				envMap[envVar.Key] = envVar.Value
-			}
-
 			// Convert to target format
 			var output string
 			var ext string
 			if format == "json" {
+				// Convert to map for JSON (order doesn't matter for JSON display)
+				envMap := make(map[string]string)
+				for _, envVar := range envVars {
+					envMap[envVar.Key] = envVar.Value
+				}
 				jsonData, err := json.MarshalIndent(envMap, "", "  ")
 				if err != nil {
 					fmt.Printf("Error converting to JSON: %v\n", err)
@@ -82,12 +81,9 @@ func NewToCmd() *cobra.Command {
 				output = string(jsonData)
 				ext = ".json"
 			} else {
-				yamlData, err := yaml.Marshal(envMap)
-				if err != nil {
-					fmt.Printf("Error converting to YAML: %v\n", err)
-					os.Exit(1)
-				}
-				output = string(yamlData)
+				// For YAML, arrange by prefix and generate manually to preserve order
+				arrangedVars := parser.ArrangeByPrefix(envVars)
+				output = convertToYAMLWithBlankLines(arrangedVars)
 				ext = ".yaml"
 			}
 
@@ -196,4 +192,27 @@ func NewFromCmd() *cobra.Command {
 			fmt.Printf("✓ File converted to .env: %s\n", outputFile)
 		},
 	}
+}
+
+// convertToYAMLWithBlankLines converts environment variables to YAML format with blank lines between different prefixes
+func convertToYAMLWithBlankLines(envVars []parser.EnvVar) string {
+	var sb strings.Builder
+
+	for i, envVar := range envVars {
+		// Escape special characters in value if needed
+		value := envVar.Value
+		if strings.ContainsAny(value, ":#{}[],&*!|>'\"%@`") || strings.HasPrefix(value, " ") || strings.HasSuffix(value, " ") {
+			// Quote the value if it contains special YAML characters
+			value = fmt.Sprintf("\"%s\"", strings.ReplaceAll(value, "\"", "\\\""))
+		}
+
+		sb.WriteString(fmt.Sprintf("%s: %s\n", envVar.Key, value))
+
+		// Add blank line if this variable is marked for a blank line after it
+		if envVar.BlankAfter && i < len(envVars)-1 {
+			sb.WriteString("\n")
+		}
+	}
+
+	return sb.String()
 }
