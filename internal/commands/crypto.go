@@ -140,9 +140,9 @@ func NewHashCmd() *cobra.Command {
 
 			fmt.Printf("\nSHA256 Hash: %s\n\n", hash)
 
-			// Prompt to copy
-			copy, err := utils.PromptForConfirmation("Copy hash to clipboard?")
-			if err == nil && copy {
+			// Prompt to copyToClipboard
+			copyToClipboard, err := utils.PromptForConfirmation("Copy hash to clipboard?")
+			if err == nil && copyToClipboard {
 				if err := utils.CopyToClipboard(hash); err != nil {
 					fmt.Printf("Error copying to clipboard: %v\n", err)
 				} else {

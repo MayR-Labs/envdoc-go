@@ -144,6 +144,8 @@ func DecodeBase64(encoded string) ([]byte, error) {
 }
 
 // GenerateRandomBytes generates random bytes of the specified length
+//
+//goland:noinspection GoUnusedExportedFunction
 func GenerateRandomBytes(length int) ([]byte, error) {
 	bytes := make([]byte, length)
 	if _, err := io.ReadFull(rand.Reader, bytes); err != nil {
