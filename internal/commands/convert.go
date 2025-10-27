@@ -197,7 +197,7 @@ func NewFromCmd() *cobra.Command {
 // convertToYAMLWithBlankLines converts environment variables to YAML format with blank lines between different prefixes
 func convertToYAMLWithBlankLines(envVars []parser.EnvVar) string {
 	var sb strings.Builder
-	
+
 	for i, envVar := range envVars {
 		// Escape special characters in value if needed
 		value := envVar.Value
@@ -205,14 +205,14 @@ func convertToYAMLWithBlankLines(envVars []parser.EnvVar) string {
 			// Quote the value if it contains special YAML characters
 			value = fmt.Sprintf("\"%s\"", strings.ReplaceAll(value, "\"", "\\\""))
 		}
-		
+
 		sb.WriteString(fmt.Sprintf("%s: %s\n", envVar.Key, value))
-		
+
 		// Add blank line if this variable is marked for a blank line after it
 		if envVar.BlankAfter && i < len(envVars)-1 {
 			sb.WriteString("\n")
 		}
 	}
-	
+
 	return sb.String()
 }

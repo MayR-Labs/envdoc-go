@@ -41,7 +41,7 @@ This is a dangerous operation and requires PIN confirmation.`,
 			// First warning
 			fmt.Printf("\n⚠️  WARNING: This operation will CLEAR ALL VALUES from '%s'\n", inputFile)
 			fmt.Println("⚠️  This action is IRREVERSIBLE and will remove all sensitive data!")
-			fmt.Println("⚠️  Make sure you have a backup before proceeding.\n")
+			fmt.Println("⚠️  Make sure you have a backup before proceeding.")
 
 			// First PIN confirmation
 			confirmed, err := utils.ConfirmWithPin("To proceed with clearing all values, please confirm with PIN")
@@ -56,7 +56,7 @@ This is a dangerous operation and requires PIN confirmation.`,
 
 			// Second warning - final confirmation
 			fmt.Printf("\n⚠️  FINAL WARNING: You are about to PERMANENTLY CLEAR all values in '%s'\n", inputFile)
-			fmt.Println("⚠️  This is your LAST CHANCE to cancel this operation!\n")
+			fmt.Println("⚠️  This is your LAST CHANCE to cancel this operation!")
 
 			// Second confirmation (yes/no)
 			finalConfirm, err := utils.PromptForConfirmation("Are you ABSOLUTELY SURE you want to continue?")
