@@ -17,14 +17,36 @@ func NewBase64Cmd() *cobra.Command {
 		Use:   "base64 [encode|decode] [file]",
 		Short: "Encode or decode a file using base64",
 		Long:  `Encodes or decodes the specified file using base64 encoding.`,
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			operation := args[0]
-			inputFile := args[1]
+			var operation, inputFile string
+			var err error
+
+			// Get operation
+			if len(args) > 0 {
+				operation = args[0]
+			} else {
+				operation, err = utils.PromptForSelection("Select operation:", []string{"encode", "decode"})
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			if operation != "encode" && operation != "decode" {
 				fmt.Println("Error: Operation must be 'encode' or 'decode'")
 				os.Exit(1)
+			}
+
+			// Get input file
+			if len(args) > 1 {
+				inputFile = args[1]
+			} else {
+				inputFile, err = utils.PromptForAnyFile("Select the file:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
 			}
 
 			// Check if input file exists
@@ -48,7 +70,7 @@ func NewBase64Cmd() *cobra.Command {
 				defaultOutput = strings.TrimSuffix(inputFile, ".b64") + ".decoded"
 			}
 
-			outputFile, err := utils.PromptForFile("Enter output filename:", defaultOutput)
+			outputFile, err := utils.PromptForOutputFile("Enter output filename:", defaultOutput)
 			if err != nil {
 				fmt.Printf("Error: %v\n", err)
 				os.Exit(1)
@@ -84,9 +106,21 @@ func NewHashCmd() *cobra.Command {
 		Use:   "hash [file]",
 		Short: "Generate SHA256 hash of a file",
 		Long:  `Generates a SHA256 hash of the specified file's contents and displays it.`,
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
+			var inputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForAnyFile("Select the file to hash:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			// Check if input file exists
 			if !utils.FileExists(inputFile) {
@@ -125,9 +159,21 @@ func NewEncryptCmd() *cobra.Command {
 		Use:   "encrypt [file]",
 		Short: "Encrypt a file using AES-256",
 		Long:  `Encrypts the specified file using AES-256-CBC encryption with PBKDF2 key derivation.`,
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
+			var inputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForAnyFile("Select the file to encrypt:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			// Check if input file exists
 			if !utils.FileExists(inputFile) {
@@ -175,7 +221,7 @@ func NewEncryptCmd() *cobra.Command {
 
 			// Get output filename
 			defaultOutput := inputFile + ".encrypted"
-			outputFile, err := utils.PromptForFile("Enter output filename:", defaultOutput)
+			outputFile, err := utils.PromptForOutputFile("Enter output filename:", defaultOutput)
 			if err != nil {
 				fmt.Printf("Error: %v\n", err)
 				os.Exit(1)
@@ -198,9 +244,21 @@ func NewDecryptCmd() *cobra.Command {
 		Use:   "decrypt [file]",
 		Short: "Decrypt an encrypted file",
 		Long:  `Decrypts a file that was encrypted using the encrypt command.`,
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
+			var inputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForAnyFile("Select the file to decrypt:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			// Check if input file exists
 			if !utils.FileExists(inputFile) {
@@ -235,7 +293,7 @@ func NewDecryptCmd() *cobra.Command {
 				defaultOutput = filepath.Base(inputFile) + ".decrypted"
 			}
 
-			outputFile, err := utils.PromptForFile("Enter output filename:", defaultOutput)
+			outputFile, err := utils.PromptForOutputFile("Enter output filename:", defaultOutput)
 			if err != nil {
 				fmt.Printf("Error: %v\n", err)
 				os.Exit(1)

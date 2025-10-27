@@ -16,9 +16,24 @@ func NewSyncCmd() *cobra.Command {
 		Short: "Synchronize keys across multiple files",
 		Long: `Synchronizes environment variable keys across multiple specified files. 
 Missing keys in each file are added with empty values.`,
-		Args: cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			files := args
+			var files []string
+			var err error
+
+			// Get files
+			if len(args) >= 2 {
+				files = args
+			} else {
+				files, err = utils.PromptForMultipleEnvFiles("Select the .env files to sync:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+				if len(files) < 2 {
+					fmt.Println("Error: At least 2 files are required for synchronization")
+					os.Exit(1)
+				}
+			}
 
 			// Check if all files exist
 			for _, file := range files {

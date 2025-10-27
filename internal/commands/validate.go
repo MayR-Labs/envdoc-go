@@ -18,10 +18,32 @@ func NewValidateCmd() *cobra.Command {
 		Short: "Validate a file against a JSON schema",
 		Long: `Validates the specified file against the provided JSON schema file. 
 A report is generated detailing any discrepancies found during validation.`,
-		Args: cobra.ExactArgs(2),
+		Args: cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
-			schemaFile := args[1]
+			var inputFile, schemaFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForEnvFile("Select the .env file to validate:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
+
+			// Get schema file
+			if len(args) > 1 {
+				schemaFile = args[1]
+			} else {
+				schemaFile, err = utils.PromptForAnyFile("Select the schema file:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			// Check if files exist
 			if !utils.FileExists(inputFile) {

@@ -17,12 +17,20 @@ func NewCreateExampleCmd() *cobra.Command {
 		Short: "Generate an example file from environment variables",
 		Long: `Generates an example file based on the environment variable keys found in the specified file. 
 The values in the example file are set to empty strings.`,
-		Args: cobra.MinimumNArgs(1),
+		Args: cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
-			outputFile := ".env.example"
-			if len(args) > 1 {
-				outputFile = args[1]
+			var inputFile, outputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForEnvFile("Select the source .env file:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
 			}
 
 			// Check if input file exists
@@ -31,12 +39,14 @@ The values in the example file are set to empty strings.`,
 				os.Exit(1)
 			}
 
-			// Check if output file exists
-			if utils.FileExists(outputFile) {
-				confirmed, err := utils.PromptForConfirmation(fmt.Sprintf("File '%s' already exists. Overwrite?", outputFile))
-				if err != nil || !confirmed {
-					fmt.Println("Operation cancelled.")
-					return
+			// Get output file
+			if len(args) > 1 {
+				outputFile = args[1]
+			} else {
+				outputFile, err = utils.PromptForOutputFile("Enter output filename:", ".env.example")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
 				}
 			}
 
@@ -75,12 +85,20 @@ func NewCreateSchemaCmd() *cobra.Command {
 		Short: "Generate a JSON schema from environment variables",
 		Long: `Generates a JSON schema file based on the environment variable keys found in the specified file. 
 The schema defines each key as a string type.`,
-		Args: cobra.MinimumNArgs(1),
+		Args: cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
-			outputFile := ".env.schema.json"
-			if len(args) > 1 {
-				outputFile = args[1]
+			var inputFile, outputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForEnvFile("Select the source .env file:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
 			}
 
 			// Check if input file exists
@@ -89,12 +107,14 @@ The schema defines each key as a string type.`,
 				os.Exit(1)
 			}
 
-			// Check if output file exists
-			if utils.FileExists(outputFile) {
-				confirmed, err := utils.PromptForConfirmation(fmt.Sprintf("File '%s' already exists. Overwrite?", outputFile))
-				if err != nil || !confirmed {
-					fmt.Println("Operation cancelled.")
-					return
+			// Get output file
+			if len(args) > 1 {
+				outputFile = args[1]
+			} else {
+				outputFile, err = utils.PromptForOutputFile("Enter output filename:", ".env.schema.json")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
 				}
 			}
 

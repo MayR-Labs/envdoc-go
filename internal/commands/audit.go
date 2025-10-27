@@ -17,9 +17,21 @@ func NewAuditCmd() *cobra.Command {
 		Short: "Generate a report of missing and duplicated keys",
 		Long: `Generates an extensive markdown report of missing environment keys 
 and duplicated keys in the specified file.`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
+			var inputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForEnvFile("Select the .env file to audit:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			// Check if input file exists
 			if !utils.FileExists(inputFile) {
@@ -53,9 +65,24 @@ func NewCompareCmd() *cobra.Command {
 		Short: "Compare keys across multiple files",
 		Long: `Generates an extensive markdown report of keys that are missing 
 across multiple specified files.`,
-		Args: cobra.MinimumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			files := args
+			var files []string
+			var err error
+
+			// Get files
+			if len(args) >= 2 {
+				files = args
+			} else {
+				files, err = utils.PromptForMultipleEnvFiles("Select the .env files to compare:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+				if len(files) < 2 {
+					fmt.Println("Error: At least 2 files are required for comparison")
+					os.Exit(1)
+				}
+			}
 
 			// Check if all files exist
 			for _, file := range files {
@@ -163,36 +190,4 @@ func generateComparisonReport(allEnvVars map[string][]parser.EnvVar) string {
 	}
 
 	return sb.String()
-}
-
-func handleReportOutput(report, prefix string) {
-	options := []string{"Show on CLI", "Copy report content", "Save to file"}
-	selected, err := utils.PromptForSelection("What would you like to do with the report?", options)
-	if err != nil {
-		fmt.Printf("Error: %v\n", err)
-		os.Exit(1)
-	}
-
-	switch selected {
-	case "Show on CLI":
-		fmt.Println("\n" + report)
-	case "Copy report content":
-		if err := utils.CopyToClipboard(report); err != nil {
-			fmt.Printf("Error copying to clipboard: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Println("✓ Report copied to clipboard")
-	case "Save to file":
-		defaultFilename := fmt.Sprintf("%s-%s.md", prefix, utils.GetTimestamp())
-		filename, err := utils.PromptForFile("Enter output filename:", defaultFilename)
-		if err != nil {
-			fmt.Printf("Error: %v\n", err)
-			os.Exit(1)
-		}
-		if err := utils.WriteToFile(filename, report); err != nil {
-			fmt.Printf("Error writing file: %v\n", err)
-			os.Exit(1)
-		}
-		fmt.Printf("✓ Report saved to: %s\n", filename)
-	}
 }

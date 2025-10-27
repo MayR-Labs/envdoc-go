@@ -19,14 +19,36 @@ func NewToCmd() *cobra.Command {
 		Use:   "to [json|yaml] [file]",
 		Short: "Convert .env file to JSON or YAML",
 		Long:  `Converts the specified .env file to the desired format (JSON or YAML).`,
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
-			format := args[0]
-			inputFile := args[1]
+			var format, inputFile string
+			var err error
+
+			// Get format
+			if len(args) > 0 {
+				format = args[0]
+			} else {
+				format, err = utils.PromptForSelection("Select output format:", []string{"json", "yaml"})
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			if format != "json" && format != "yaml" {
 				fmt.Println("Error: Format must be 'json' or 'yaml'")
 				os.Exit(1)
+			}
+
+			// Get input file
+			if len(args) > 1 {
+				inputFile = args[1]
+			} else {
+				inputFile, err = utils.PromptForEnvFile("Select the .env file to convert:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
 			}
 
 			// Check if input file exists
@@ -72,7 +94,7 @@ func NewToCmd() *cobra.Command {
 			// Get output filename
 			baseName := strings.TrimSuffix(filepath.Base(inputFile), filepath.Ext(inputFile))
 			defaultOutput := baseName + ext
-			outputFile, err := utils.PromptForFile("Enter output filename:", defaultOutput)
+			outputFile, err := utils.PromptForOutputFile("Enter output filename:", defaultOutput)
 			if err != nil {
 				fmt.Printf("Error: %v\n", err)
 				os.Exit(1)
@@ -95,9 +117,21 @@ func NewFromCmd() *cobra.Command {
 		Use:   "from [file]",
 		Short: "Convert JSON or YAML file to .env",
 		Long:  `Converts the specified JSON or YAML file to .env format.`,
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
+			var inputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForAnyFile("Select the file to convert (JSON or YAML):")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			// Check if input file exists
 			if !utils.FileExists(inputFile) {
@@ -146,7 +180,7 @@ func NewFromCmd() *cobra.Command {
 			// Get output filename
 			baseName := strings.TrimSuffix(filepath.Base(inputFile), filepath.Ext(inputFile))
 			defaultOutput := baseName + ".env"
-			outputFile, err := utils.PromptForFile("Enter output filename:", defaultOutput)
+			outputFile, err := utils.PromptForOutputFile("Enter output filename:", defaultOutput)
 			if err != nil {
 				fmt.Printf("Error: %v\n", err)
 				os.Exit(1)

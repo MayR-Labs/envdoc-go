@@ -22,8 +22,14 @@ A powerful CLI tool for managing, validating, and transforming environment varia
 
 ### Quick Install (Linux/macOS)
 
+Using curl:
 ```bash
 curl -sSL https://raw.githubusercontent.com/MayR-Labs/envdoc-go/main/install.sh | bash
+```
+
+Or using wget:
+```bash
+wget -qO- https://raw.githubusercontent.com/MayR-Labs/envdoc-go/main/install.sh | bash
 ```
 
 ### Manual Installation

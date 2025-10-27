@@ -16,9 +16,21 @@ func NewArrangeCmd() *cobra.Command {
 		Short: "Arrange and group environment variables",
 		Long: `Arrange and group environment variable keys in the specified file. 
 Grouping means similar prefixes will be clustered together.`,
-		Args: cobra.ExactArgs(1),
+		Args: cobra.MaximumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			inputFile := args[0]
+			var inputFile string
+			var err error
+
+			// Get input file
+			if len(args) > 0 {
+				inputFile = args[0]
+			} else {
+				inputFile, err = utils.PromptForEnvFile("Select the .env file to arrange:")
+				if err != nil {
+					fmt.Printf("Error: %v\n", err)
+					os.Exit(1)
+				}
+			}
 
 			// Check if input file exists
 			if !utils.FileExists(inputFile) {
