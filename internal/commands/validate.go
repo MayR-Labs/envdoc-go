@@ -16,7 +16,7 @@ func NewValidateCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "validate [file] [schema-file]",
 		Short: "Validate a file against a JSON schema",
-		Long: `Validates the specified file against the provided JSON schema file. 
+		Long: `Validates the specified file against the provided JSON schema file.
 A report is generated detailing any discrepancies found during validation.`,
 		Args: cobra.MaximumNArgs(2),
 		Run: func(cmd *cobra.Command, args []string) {
@@ -90,7 +90,7 @@ func NewDoctorCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "doctor",
 		Short: "Audit all .env files in the current directory",
-		Long: `Audits and compares every .env file (.env, .env.*) except encrypted files 
+		Long: `Audits and compares every .env file (.env, .env.*) except encrypted files
 in the current working directory. A comprehensive report is generated.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// Find all .env files
@@ -136,7 +136,7 @@ func NewEngineerCmd() *cobra.Command {
 	return &cobra.Command{
 		Use:   "engineer",
 		Short: "Sync and arrange all .env files in the current directory",
-		Long: `Synchronizes and arranges every .env file (.env, .env.*) except encrypted files 
+		Long: `Synchronizes and arranges every .env file (.env, .env.*) except encrypted files
 in the current working directory.`,
 		Run: func(cmd *cobra.Command, args []string) {
 			// Find all .env files
